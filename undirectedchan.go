@@ -31,18 +31,31 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	inspect.Preorder(nodeFilter, func(n ast.Node) {
 		switch n := n.(type) {
 		case *ast.FuncDecl:
-			for _, arg := range n.Type.Params.List {
-				chType, ok := arg.Type.(*ast.ChanType)
-				if !ok {
-					continue
+			if n.Type.Params != nil {
+				for _, arg := range n.Type.Params.List {
+					chType, ok := arg.Type.(*ast.ChanType)
+					if !ok {
+						continue
+					}
+					if chType.Dir == ast.RECV|ast.SEND {
+						pass.Reportf(n.Pos(), "channel argument should be directed")
+					}
+					fmt.Printf("%#v\n", chType)
 				}
-				if chType.Dir == ast.RECV|ast.SEND {
-					pass.Reportf(n.Pos(), "channel argument should be directed")
+			}
+			if n.Type.Results != nil {
+				for _, res := range n.Type.Results.List {
+					chType, ok := res.Type.(*ast.ChanType)
+					if !ok {
+						continue
+					}
+					if chType.Dir == ast.RECV|ast.SEND {
+						pass.Reportf(n.Pos(), "channel argument should be directed")
+					}
+					fmt.Printf("%#v\n", chType)
 				}
-				fmt.Printf("%#v\n", chType)
 			}
 		}
-
 	})
 
 	return nil, nil
