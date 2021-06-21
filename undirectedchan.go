@@ -65,6 +65,17 @@ func run(pass *analysis.Pass) (interface{}, error) {
 					}
 				}
 			}
+			if n.Type.Results != nil {
+				for _, res := range n.Type.Results.List {
+					chType, ok := res.Type.(*ast.ChanType)
+					if !ok {
+						continue
+					}
+					if chType.Dir == ast.RECV|ast.SEND {
+						pass.Reportf(n.Pos(), "channel result should be directed")
+					}
+				}
+			}
 		}
 	})
 
