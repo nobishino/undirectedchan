@@ -29,55 +29,42 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	}
 
 	inspect.Preorder(nodeFilter, func(n ast.Node) {
-		switch n := n.(type) {
-		case *ast.FuncDecl:
-			if n.Type.Params != nil {
-				for _, arg := range n.Type.Params.List {
-					chType, ok := arg.Type.(*ast.ChanType)
-					if !ok {
-						continue
-					}
-					if chType.Dir == ast.RECV|ast.SEND {
-						pass.Reportf(n.Pos(), "channel argument should be directed")
-					}
-				}
-			}
-			if n.Type.Results != nil {
-				for _, res := range n.Type.Results.List {
-					chType, ok := res.Type.(*ast.ChanType)
-					if !ok {
-						continue
-					}
-					if chType.Dir == ast.RECV|ast.SEND {
-						pass.Reportf(n.Pos(), "channel result should be directed")
-					}
-				}
-			}
-		case *ast.FuncLit:
-			if n.Type.Params != nil {
-				for _, arg := range n.Type.Params.List {
-					chType, ok := arg.Type.(*ast.ChanType)
-					if !ok {
-						continue
-					}
-					if chType.Dir == ast.RECV|ast.SEND {
-						pass.Reportf(n.Pos(), "channel argument should be directed")
-					}
-				}
-			}
-			if n.Type.Results != nil {
-				for _, res := range n.Type.Results.List {
-					chType, ok := res.Type.(*ast.ChanType)
-					if !ok {
-						continue
-					}
-					if chType.Dir == ast.RECV|ast.SEND {
-						pass.Reportf(n.Pos(), "channel result should be directed")
-					}
-				}
-			}
-		}
+		checkFuncType(pass, n)
 	})
 
 	return nil, nil
+}
+
+func checkFuncType(pass *analysis.Pass, n ast.Node) {
+	var typ *ast.FuncType
+	switch n := n.(type) {
+	case *ast.FuncDecl:
+		typ = n.Type
+	case *ast.FuncLit:
+		typ = n.Type
+	default:
+		return
+	}
+	if typ.Params != nil {
+		for _, arg := range typ.Params.List {
+			chType, ok := arg.Type.(*ast.ChanType)
+			if !ok {
+				continue
+			}
+			if chType.Dir == ast.RECV|ast.SEND {
+				pass.Reportf(n.Pos(), "channel argument should be directed")
+			}
+		}
+	}
+	if typ.Results != nil {
+		for _, res := range typ.Results.List {
+			chType, ok := res.Type.(*ast.ChanType)
+			if !ok {
+				continue
+			}
+			if chType.Dir == ast.RECV|ast.SEND {
+				pass.Reportf(n.Pos(), "channel result should be directed")
+			}
+		}
+	}
 }
