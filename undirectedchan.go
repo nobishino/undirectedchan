@@ -36,7 +36,9 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				if !ok {
 					continue
 				}
-				pass.Reportf(n.Pos(), "channel argument should be directed")
+				if chType.Dir == ast.RECV|ast.SEND {
+					pass.Reportf(n.Pos(), "channel argument should be directed")
+				}
 				fmt.Printf("%#v\n", chType)
 			}
 		}
