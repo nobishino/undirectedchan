@@ -9,3 +9,7 @@
 # check
 
 `go vet -vettool=$(which undirectedchan)`
+
+# acknowledgement
+
+`undirectedchan` is using [`skeleton/v2`](https://github.com/gostaticanalysis/skeleton) for template generation.
