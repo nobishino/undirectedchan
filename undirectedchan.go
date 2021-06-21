@@ -50,7 +50,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 						continue
 					}
 					if chType.Dir == ast.RECV|ast.SEND {
-						pass.Reportf(n.Pos(), "channel argument should be directed")
+						pass.Reportf(n.Pos(), "channel result should be directed")
 					}
 					fmt.Printf("%#v\n", chType)
 				}
