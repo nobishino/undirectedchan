@@ -27,3 +27,5 @@ func j(ch <-chan int) chan int { // want "channel result should be directed"
 	}()
 	return result
 }
+
+var k = func(ch chan int) {} // want "channel argument should be directed"

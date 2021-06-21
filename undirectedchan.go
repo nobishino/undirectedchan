@@ -1,7 +1,6 @@
 package undirectedchan
 
 import (
-	"fmt"
 	"go/ast"
 
 	"golang.org/x/tools/go/analysis"
@@ -26,6 +25,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 	nodeFilter := []ast.Node{
 		(*ast.FuncDecl)(nil),
+		(*ast.FuncLit)(nil),
 	}
 
 	inspect.Preorder(nodeFilter, func(n ast.Node) {
@@ -40,7 +40,6 @@ func run(pass *analysis.Pass) (interface{}, error) {
 					if chType.Dir == ast.RECV|ast.SEND {
 						pass.Reportf(n.Pos(), "channel argument should be directed")
 					}
-					fmt.Printf("%#v\n", chType)
 				}
 			}
 			if n.Type.Results != nil {
@@ -52,7 +51,18 @@ func run(pass *analysis.Pass) (interface{}, error) {
 					if chType.Dir == ast.RECV|ast.SEND {
 						pass.Reportf(n.Pos(), "channel result should be directed")
 					}
-					fmt.Printf("%#v\n", chType)
+				}
+			}
+		case *ast.FuncLit:
+			if n.Type.Params != nil {
+				for _, arg := range n.Type.Params.List {
+					chType, ok := arg.Type.(*ast.ChanType)
+					if !ok {
+						continue
+					}
+					if chType.Dir == ast.RECV|ast.SEND {
+						pass.Reportf(n.Pos(), "channel argument should be directed")
+					}
 				}
 			}
 		}
