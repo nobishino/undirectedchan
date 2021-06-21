@@ -8,7 +8,7 @@ import (
 	"golang.org/x/tools/go/ast/inspector"
 )
 
-const doc = "undirectedchan is ..."
+const doc = "undirectedchan is a vet tool that reports usage of undirected channel type as function arguments or results."
 
 // Analyzer is ...
 var Analyzer = &analysis.Analyzer{
